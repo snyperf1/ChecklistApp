@@ -16,6 +16,9 @@ struct DailyChecklistApp: App {
         .commands {
             CommandGroup(replacing: CommandGroupPlacement.newItem) { }
         }
+
 #endif
+
+
     }
 }

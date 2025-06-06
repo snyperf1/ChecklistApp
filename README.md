@@ -1,5 +1,6 @@
 # Daily Checklist App
 
+
 This repository contains the Swift source files for a simple checklist application built with SwiftUI. The code targets both macOS and iOS.
 
 ## Building
