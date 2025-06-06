@@ -25,6 +25,11 @@ struct ContentView: View {
                     .font(.footnote)
                     .foregroundColor(.secondary)
                     .padding(.top, 2)
+              
+                ProgressView(value: store.overallProgress)
+                    .accentColor(.green)
+                    .padding(.top, 4)
+              
             }
             .padding(.bottom, 12)
 
@@ -36,6 +41,9 @@ struct ContentView: View {
                                 .font(.title2).bold()
                                 .padding(.bottom, 4)
                     ) {
+                      
+                        ProgressView(value: store.morningProgress)
+                            .accentColor(.blue)
                         VStack(spacing: 8) {
                             ForEach(store.morningTasks) { task in
                                 TaskRow(task: task)
@@ -46,6 +54,8 @@ struct ContentView: View {
                                     addMorningTask()
                                 })
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .frame(height: 44)
+
 
                                 Button(action: {
                                     addMorningTask()
@@ -66,6 +76,10 @@ struct ContentView: View {
                                 .font(.title2).bold()
                                 .padding(.bottom, 4)
                     ) {
+
+                        ProgressView(value: store.nightProgress)
+                            .accentColor(.purple)
+                      
                         VStack(spacing: 8) {
                             ForEach(store.nightTasks) { task in
                                 TaskRow(task: task)
@@ -76,7 +90,8 @@ struct ContentView: View {
                                     addNightTask()
                                 })
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
-
+                                .frame(height: 44)
+                              
                                 Button(action: {
                                     addNightTask()
                                 }) {
@@ -99,7 +114,7 @@ struct ContentView: View {
 
             HStack {
                 Spacer()
-                Text("Daily Checklist • v1.0")
+                Text("Daily Checklist • v1.1")
                     .font(.footnote)
                     .foregroundColor(.secondary)
                 Spacer()

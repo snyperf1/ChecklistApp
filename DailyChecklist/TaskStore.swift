@@ -2,6 +2,8 @@
 
 import Foundation
 import Combine
+import UserNotifications
+
 
 final class TaskStore: ObservableObject {
     // Default tasks (modify as you like)
@@ -24,6 +26,27 @@ final class TaskStore: ObservableObject {
     @Published var morningTasks: [Task] = []
     @Published var nightTasks: [Task] = []
 
+
+    // Progress values from 0.0 to 1.0
+    var morningProgress: Double {
+        guard !morningTasks.isEmpty else { return 0 }
+        let done = morningTasks.filter { $0.isDone }.count
+        return Double(done) / Double(morningTasks.count)
+    }
+
+    var nightProgress: Double {
+        guard !nightTasks.isEmpty else { return 0 }
+        let done = nightTasks.filter { $0.isDone }.count
+        return Double(done) / Double(nightTasks.count)
+    }
+
+    var overallProgress: Double {
+        let total = morningTasks.count + nightTasks.count
+        guard total > 0 else { return 0 }
+        let done = morningTasks.filter { $0.isDone }.count +
+                   nightTasks.filter { $0.isDone }.count
+        return Double(done) / Double(total)
+    }
     private var currentDateKey: String {
         let today = Date()
         let formatter = DateFormatter()
@@ -35,6 +58,9 @@ final class TaskStore: ObservableObject {
 
     init() {
         loadTasksForToday()
+        NotificationManager.requestPermission()
+        NotificationManager.scheduleDailyReminders()
+
     }
 
     // MARK: - Loading & Saving

@@ -11,9 +11,14 @@ struct DailyChecklistApp: App {
             ContentView()
                 .environmentObject(store)
         }
+#if os(macOS)
         .windowStyle(HiddenTitleBarWindowStyle())
         .commands {
             CommandGroup(replacing: CommandGroupPlacement.newItem) { }
         }
+
+#endif
+
+
     }
 }
