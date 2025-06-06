@@ -4,11 +4,41 @@ import Foundation
 import Combine
 import UserNotifications
 
+    private static let dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        return df
+    }()
 
-final class TaskStore: ObservableObject {
-    // Default tasks (modify as you like)
-    private let defaultMorningTasks = [
-        Task(text: "Wake up", section: .morning),
+
+    private var resetTimer: Timer?
+
+        let now = Date()
+        let calendar = Calendar.current
+        let boundary = calendar.date(bySettingHour: 2, minute: 0, second: 0, of: now)!
+        let dateToUse = now >= boundary ? now : calendar.date(byAdding: .day, value: -1, to: now)!
+        return Self.dateFormatter.string(from: dateToUse)
+        scheduleNextReset()
+    private func scheduleNextReset() {
+        resetTimer?.invalidate()
+        let calendar = Calendar.current
+        let now = Date()
+        var next = calendar.date(bySettingHour: 2, minute: 0, second: 0, of: now)!
+        if next <= now {
+            next = calendar.date(byAdding: .day, value: 1, to: next)!
+        }
+        resetTimer = Timer(fireAt: next, interval: 0, target: self,
+                           selector: #selector(handleResetTimer), userInfo: nil, repeats: false)
+        RunLoop.main.add(resetTimer!, forMode: .common)
+    }
+
+    @objc private func handleResetTimer() {
+        morningTasks = defaultMorningTasks
+        nightTasks = defaultNightTasks
+        saveTasks()
+        scheduleNextReset()
+    }
+
         Task(text: "Pray & read Scripture", section: .morning),
         Task(text: "Brush teeth & wash face", section: .morning),
         Task(text: "Have breakfast", section: .morning),

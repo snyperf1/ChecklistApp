@@ -1,7 +1,7 @@
 # Daily Checklist App
 
 
-This repository contains the Swift source files for a simple checklist application built with SwiftUI. The code targets both macOS and iOS.
+Tasks persist to `UserDefaults`, automatically resetting at **2:00 AM** each day. The app also schedules daily local notifications for reminders.
 
 ## Building
 
