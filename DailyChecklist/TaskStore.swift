@@ -26,6 +26,8 @@ final class TaskStore: ObservableObject {
     @Published var morningTasks: [Task] = []
     @Published var nightTasks: [Task] = []
 
+    private var resetTimer: Timer?
+
 
     // Progress values from 0.0 to 1.0
     var morningProgress: Double {
@@ -48,10 +50,25 @@ final class TaskStore: ObservableObject {
         return Double(done) / Double(total)
     }
     private var currentDateKey: String {
-        let today = Date()
+        let calendar = Calendar.current
+        let now = Date()
+        guard let startOfToday = calendar.date(bySettingHour: 2, minute: 0, second: 0, of: now) else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            return formatter.string(from: now)
+        }
+        var dateForKey = now
+        if now < startOfToday {
+            guard let previousDay = calendar.date(byAdding: .day, value: -1, to: now) else {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "yyyy-MM-dd"
+                return formatter.string(from: now)
+            }
+            dateForKey = previousDay
+        }
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: today)
+        return formatter.string(from: dateForKey)
     }
 
     private let storageKey = "DailyChecklist_Tasks"
@@ -60,7 +77,7 @@ final class TaskStore: ObservableObject {
         loadTasksForToday()
         NotificationManager.requestPermission()
         NotificationManager.scheduleDailyReminders()
-
+        scheduleNextReset()
     }
 
     // MARK: - Loading & Saving
@@ -124,6 +141,34 @@ final class TaskStore: ObservableObject {
             nightTasks.removeAll { $0.id == task.id }
         }
         saveTasks()
+    }
+
+    // MARK: - Daily Reset
+
+    @objc private func resetForNewDay() {
+        morningTasks = defaultMorningTasks
+        nightTasks = defaultNightTasks
+        saveTasks()
+        scheduleNextReset()
+    }
+
+    private func scheduleNextReset() {
+        resetTimer?.invalidate()
+
+        let calendar = Calendar.current
+        let now = Date()
+
+        guard var next = calendar.date(bySettingHour: 2, minute: 0, second: 0, of: now) else {
+            return
+        }
+
+        if next <= now {
+            guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: next) else { return }
+            next = tomorrow
+        }
+
+        resetTimer = Timer(fireAt: next, interval: 0, target: self, selector: #selector(resetForNewDay), userInfo: nil, repeats: false)
+        RunLoop.main.add(resetTimer!, forMode: .common)
     }
 }
 
